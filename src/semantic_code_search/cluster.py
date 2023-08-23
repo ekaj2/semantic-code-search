@@ -58,8 +58,8 @@ def do_cluster(args, model):
             args.path_to_repo))
         do_embed(args, model)
 
-    with gzip.open(args.path_to_repo + '/' + '.embeddings', 'r') as f:
-        dataset = pickle.loads(f.read())
+    with gzip.open(args.path_to_repo + '/' + '.embeddings', 'rb') as f:
+        dataset = pickle.load(f)
         if dataset.get('model_name') != args.model_name_or_path:
             print('Model name mismatch. Regenerating embeddings.')
             dataset = do_embed(args, model)

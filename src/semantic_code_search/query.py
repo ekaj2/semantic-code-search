@@ -21,8 +21,8 @@ def _search(query_embedding, corpus_embeddings, functions, k=5, file_extension=N
 
 
 def _query_embeddings(model, args):
-    with gzip.open(args.path_to_repo + '/' + '.embeddings', 'r') as f:
-        dataset = pickle.loads(f.read())
+    with gzip.open(args.path_to_repo + '/' + '.embeddings', 'rb') as f:
+        dataset = pickle.load(f)
         if dataset.get('model_name') != args.model_name_or_path:
             print('Model name mismatch. Regenerating embeddings.')
             dataset = do_embed(args, model)

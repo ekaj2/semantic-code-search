@@ -94,6 +94,6 @@ def do_embed(args, model):
 
     dataset = {'functions': functions,
                'embeddings': corpus_embeddings, 'model_name': args.model_name_or_path}
-    with gzip.open(args.path_to_repo + '/' + '.embeddings', 'w') as f:
-        f.write(pickle.dumps(dataset))
+    with gzip.open(args.path_to_repo + '/' + '.embeddings', 'wb') as f:
+        pickle.dump(dataset, f)
     return dataset
