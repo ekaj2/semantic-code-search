@@ -1,3 +1,4 @@
+import json
 import gzip
 import os
 import pickle
@@ -13,7 +14,8 @@ from semantic_code_search.prompt import ResultScreen
 def _search(query_embedding, corpus_embeddings, functions, k=5, file_extension=None):
     # TODO: filtering by file extension
     cos_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
-    top_results = torch.topk(cos_scores, k=min(k, len(cos_scores)), sorted=True)
+    top_results = torch.topk(cos_scores, k=min(
+        k, len(cos_scores)), sorted=True)
     out = []
     for score, idx in zip(top_results[0], top_results[1]):
         out.append((score, functions[idx]))
@@ -41,7 +43,7 @@ def open_in_editor(file, line, editor):
 
 def do_query(args, model):
     if not args.query_text:
-        print('provide a query')
+        print('must provide a query')
         # todo: add a prompt here as a fallback
         sys.exit(1)
 
@@ -51,13 +53,24 @@ def do_query(args, model):
         do_embed(args, model)
 
     results = _query_embeddings(model, args)
+    clean_formatting_results = []
+    for result in results:
+        clean_formatting_results.append(
+            [
+                float(result[0]),          # score
+                result[1]['file'],  # file
+                result[1]['line'],  # line number
+                result[1]['text']   # line text
+            ]
+        )
+    print(json.dumps(clean_formatting_results))
 
-    selected_idx = ResultScreen(results, args.query_text).run()
-    if not selected_idx:
-        sys.exit(0)  # user cancelled
-    file_path_with_line = (
-        results[selected_idx][1]['file'], results[selected_idx][1]['line'] + 1)
-    if file_path_with_line is not None:
-        open_in_editor(
-            file_path_with_line[0], file_path_with_line[1], args.editor)
-        sys.exit(0)
+    # selected_idx = ResultScreen(results, args.query_text).run()
+    # if not selected_idx:
+    #    sys.exit(0)  # user cancelled
+    # file_path_with_line = (
+    #    results[selected_idx][1]['file'], results[selected_idx][1]['line'] + 1)
+    # if file_path_with_line is not None:
+    #    open_in_editor(
+    #        file_path_with_line[0], file_path_with_line[1], args.editor)
+    #    sys.exit(0)
